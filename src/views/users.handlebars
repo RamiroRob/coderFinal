@@ -1,0 +1,37 @@
+<!-- prettier-ignore -->
+<h1>Administración de Usuarios</h1>
+
+{{#if users}}
+  <table>
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Apellido</th>
+        <th>Email</th>
+        <th>Rol</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each users}}
+        <tr>
+          <td>{{this.first_name}}</td>
+          <td>{{this.last_name}}</td>
+          <td>{{this.email}}</td>
+          <td>{{this.role}}</td>
+          <td>
+
+            <button
+              class="delete-user-button"
+              data-user-id={{this._id}}
+            >Eliminar</button>
+          </td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+{{else}}
+  <p>No hay usuarios para mostrar.</p>
+{{/if}}
+
+<script src="/js/users.js"></script>

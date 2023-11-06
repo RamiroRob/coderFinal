@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const handlebars = require('express-handlebars');
 const mongoose = require('mongoose');
@@ -16,8 +17,8 @@ const logger = require('./middlewares/loggers/winston.logger');
 
 // Levantar el servidor
 const app = express();
-const PORT = 8080
-const httpServer = app.listen(PORT || 8080, () => { logger.info(`Servidor funcionando en puerto ${PORT}`); });
+const PORT = process.env.PORT
+const httpServer = app.listen(PORT || 8080, "0.0.0.0", () => { logger.info(`Servidor funcionando en puerto ${PORT}`); });
 const io = new Server(httpServer);
 
 // Swagger

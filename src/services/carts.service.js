@@ -29,7 +29,6 @@ const getCartById = async (cid) => {
 }
 
 const addProductToCart = async (cid, pid) => {
-    xw
     let cart = await cartModel.findById(cid);
 
     if (!cart) {
@@ -75,7 +74,7 @@ const removeProductFromCart = async (cid, pid) => {
     }
 
     cart = await cartModel.findByIdAndUpdate(cid, {
-        $pull: { products: { product: Number(pid) } }
+        $pull: { products: { product: pid } }
     }, { new: true });
 
     return {
@@ -119,7 +118,7 @@ const updateProductQuantityInCart = async (cid, pid, quantity) => {
         cart = await cartModel.findByIdAndUpdate(cid, {
             $set: { 'products.$[elem].quantity': Number(quantity) }
         }, {
-            arrayFilters: [{ 'elem.product': Number(pid) }],
+            arrayFilters: [{ 'elem.product': pid }],
             new: true
         });
     } else {

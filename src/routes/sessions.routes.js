@@ -32,7 +32,6 @@ sessionsRouter.get('/githubcallback', passport.authenticate('github'), async (re
 );
 
 sessionsRouter.get('/current', (req, res) => {
-    console.log(req.session.user)
     if (req.session && req.session.user) {
         res.status(200).json({ user: new userDto(req.session.user) });
     } else {

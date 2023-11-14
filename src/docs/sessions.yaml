@@ -1,0 +1,126 @@
+openapi: 3.1.0
+info:
+  title: Documentación de e-commerce
+  description: Documentación de endpoints de products, carts, sessions y users
+  version: 1.0.0
+
+paths:
+  /api/sessions/register:
+    post:
+      tags:
+        - Sessions
+      summary: Registra un nuevo usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        200:
+          description: Registro exitoso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+
+  /api/sessions/login:
+    post:
+      tags:
+        - Sessions
+      summary: Inicia sesión para un usuario existente
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        200:
+          description: Inicio de sesión exitoso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+
+  /api/sessions/githubcallback:
+    get:
+      tags:
+        - Sessions
+      summary: Callback para autenticación con GitHub
+      responses:
+        302:
+          description: Redirección a la página de productos
+
+  /api/sessions/current:
+    get:
+      tags:
+        - Sessions
+      summary: Obtiene el usuario actualmente autenticado
+      responses:
+        200:
+          description: Información del usuario autenticado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    type: object
+        401:
+          description: No hay usuario autenticado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+
+  /api/sessions/logout:
+    post:
+      tags:
+        - Sessions
+      summary: Cierra la sesión del usuario
+      responses:
+        200:
+          description: Sesión cerrada con éxito
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+
+security:
+  sessionAuth:
+    type: apiKey
+    in: cookie
+    name: sessionId

@@ -1,6 +1,8 @@
 const cartModel = require('../dao/carts.model')
+const productModel = require('../dao/products.model');
 const ticketModel = require('../dao/tickets.model');
 const { v4: uuidv4 } = require('uuid');
+const mongoose = require('mongoose');
 
 const createCart = async (products) => {
     const newCart = { products };
@@ -27,6 +29,7 @@ const getCartById = async (cid) => {
 }
 
 const addProductToCart = async (cid, pid) => {
+    xw
     let cart = await cartModel.findById(cid);
 
     if (!cart) {
@@ -36,17 +39,20 @@ const addProductToCart = async (cid, pid) => {
         };
     }
 
-    const product = cart.products.find(item => item.product == pid)
+    const product = cart.products.find(item => item.product.toString() == pid)
 
     if (product) {
         cart = await cartModel.findByIdAndUpdate(cid, {
             $inc: { 'products.$[elem].quantity': 1 }
         }, {
-            arrayFilters: [{ 'elem.product': Number(pid) }]
+            arrayFilters: [{ 'elem.product': pid }],
+            new: true
         });
     } else {
         cart = await cartModel.findByIdAndUpdate(cid, {
-            $push: { products: { product: Number(pid), quantity: 1 } }
+            $push: { products: { product: pid, quantity: 1 } }
+        }, {
+            new: true
         });
     }
 
@@ -161,32 +167,49 @@ const finalizePurchase = async (cid, userEmail) => {
     let totalAmount = 0;
     const notAvailableProducts = [];
 
-    for (let cartItem of cart.products) {
-        let product = await productModel.findById(cartItem.product);
-        if (product.stock < cartItem.quantity) {
-            notAvailableProducts.push(cartItem.product);
-        } else {
-            totalAmount += product.price * cartItem.quantity;
-            product.stock -= cartItem.quantity;
-            await product.save();
+    try {
+        for (let cartItem of cart.products) {
+            let product = await productModel.findById(cartItem.product);
+            if (product.stock < cartItem.quantity) {
+                notAvailableProducts.push(cartItem.product);
+            } else {
+                totalAmount += product.price * cartItem.quantity;
+                product.stock -= cartItem.quantity;
+                await product.save();
+            }
         }
+    } catch (err) {
+        return {
+            status: 500,
+            message: 'Error al finalizar la compra',
+            data: err
+        };
     }
 
     if (notAvailableProducts.length === 0) {
-        const ticket = await ticketModel.create({
-            code: uuidv4(),
-            purchase_datetime: new Date(),
-            amount: totalAmount,
-            purchaser: userEmail
-        });
+        try {
+            const ticket = await ticketModel.create({
+                code: uuidv4(),
+                purchase_datetime: new Date(),
+                amount: totalAmount,
+                purchaser: userEmail
+            });
 
-        cart.products = [];
-        await cart.save();
-        return {
-            status: 201,
-            message: 'Compra finalizada con éxito',
-            data: ticket
-        };
+            cart.products = [];
+            await cart.save();
+            return {
+                status: 201,
+                message: 'Compra finalizada con éxito',
+                data: ticket
+            };
+        }
+        catch (err) {
+            return {
+                status: 500,
+                message: 'Error al finalizar la compra',
+                data: err
+            };
+        }
     } else {
         cart.products = cart.products.filter(p => notAvailableProducts.includes(p.product));
         await cart.save();

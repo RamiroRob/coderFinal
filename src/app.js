@@ -68,7 +68,7 @@ app.use(
         }),
         secret: "CoderSecret",
         resave: false,
-        saveUninitialized: true, // Revisar esto
+        saveUninitialized: true,
     })
 );
 
@@ -80,7 +80,7 @@ app.use('/api', router)
 app.use('/', viewsRouter)
 
 
-// Socket.io
+// Socket
 io.on('connection', (socket) => {
 
     logger.info('cliente conectado')
